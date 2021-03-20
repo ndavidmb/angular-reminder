@@ -1,0 +1,89 @@
+<h2 mat-dialog-title>
+  {{ createMode ? 'Create reminder' : 'Edit reminder' }}
+  <small class="text-muted">{{date | date:'longDate'}}</small>
+</h2>
+<mat-divider></mat-divider>
+<br />
+<mat-dialog-content>
+  <form [formGroup]="formGroup">
+    <div class="form-group mb-2">
+      <label for="message">Reminder</label>
+      <textarea
+        class="form-control"
+        id="message"
+        rows="3"
+        formControlName="message"
+      ></textarea>
+      <div class="w-100 row m-0">
+        <div class="text-danger col" style="font-size: 12px">
+          <ng-container
+            *ngIf="formGroup.controls['message'].errors?.required &&
+            (formGroup.controls['message'].dirty ||
+            formGroup.controls['message'].touched)"
+          >
+            This field is required
+          </ng-container>
+          {{formGroup.controls['message'].errors?.maxLength}}
+          <ng-container *ngIf="formGroup.controls['message'].errors?.maxlength">
+            This field should be less than 30
+          </ng-container>
+        </div>
+        <div
+          class="col"
+          style="text-align: end; font-size: 12px"
+          [ngClass]="(formGroup.controls['message'].value.length <= 30) ? 'text-muted' : 'text-danger'"
+        >
+          {{ formGroup.controls['message'].value.length }} / 30
+        </div>
+      </div>
+    </div>
+    <div class="row mx-0 mb-2">
+      <div class="form-group col-5" style="padding-left: 0">
+        <label for="hour" class="form-label">Hour</label>
+        <select class="form-select" id="hour" formControlName="hour">
+          <option *ngFor="let hour of hours" value="{{hour}}">{{hour}}</option>
+        </select>
+      </div>
+      <div
+        class="col-1"
+        style="font-size: 35px; margin-top: auto; margin-bottom: inherit"
+      >
+        -
+      </div>
+      <div class="form-group col-4">
+        <select
+          class="form-select"
+          style="margin-top: 1.8rem"
+          formControlName="period"
+        >
+          <option value="0">AM</option>
+          <option value="12">PM</option>
+        </select>
+      </div>
+      <div class="col-2">
+        <label for="colorInput" class="form-label">Color</label>
+        <input
+          type="color"
+          id="colorInput"
+          class="form-control form-control-color"
+          title="Choose your color"
+          formControlName="color"
+        />
+      </div>
+    </div>
+  </form>
+</mat-dialog-content>
+<br />
+<mat-divider></mat-divider>
+<mat-dialog-actions align="end">
+  <button class="btn btn-secondary mx-1" mat-button mat-dialog-close>
+    Cancel
+  </button>
+  <button
+    [disabled]="formGroup.invalid"
+    class="btn btn-primary mx-1"
+    (click)="save()"
+  >
+    Save
+  </button>
+</mat-dialog-actions>

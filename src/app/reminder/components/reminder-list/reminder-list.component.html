@@ -1,0 +1,70 @@
+<nav
+  class="navbar navbar-expand-lg navbar-dark bg-dark"
+>
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#">Month</a>
+    <button
+      class="navbar-toggler"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#navbarSupportedContent"
+      aria-controls="navbarSupportedContent"
+      aria-expanded="false"
+      aria-label="Toggle navigation"
+    >
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <li class="d-flex">
+        <select
+          [(ngModel)]="value"
+          (ngModelChange)="changeMonth($event)"
+          class="form-select"
+          style="width: 250px"
+        >
+          <option *ngFor="let item of monthsName" value="{{item.value}}">
+            {{item.name}}
+          </option>
+        </select>
+      </li>
+    </div>
+  </div>
+</nav>
+<div class="w-100 h1 mx-3">
+  {{monthsName[value].name}}
+  <small class="text-muted">2021</small>
+</div>
+<div class="card m-3 p-2">
+  <table class="table">
+    <thead>
+      <tr>
+        <td scope="col">Sunday</td>
+        <td scope="col">Monday</td>
+        <td scope="col">Tuesday</td>
+        <td scope="col">Wednesday</td>
+        <td scope="col">Thursday</td>
+        <td scope="col">Friday</td>
+        <td scope="col">Saturday</td>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let week of weeks$ | async ">
+        <td
+          *ngFor="let day of week.days"
+          class="border"
+          style="height: 12vh; width: 8vw"
+          [ngClass]="(day.idDay === 0) ? 'bg-light' : ''"
+        >
+          <ng-container *ngIf="day.idDay !== 0">
+            <div class="w-100 row m-0">
+              <div class="col-10 p-0">{{day.idDay}}</div>
+              <div class="col-2 p-0">
+                <i class="bi bi-calendar-plus mx-2 text-primary" (click)="openForm(true, day)" title="New description" style="cursor: pointer;"></i>
+              </div>
+            </div>
+          </ng-container>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

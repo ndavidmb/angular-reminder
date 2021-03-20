@@ -4,6 +4,7 @@
     "codelyzer"
   ],
   "rules": {
+    "@typescript-eslint/restrict-plus-operands": "error",
     "align": {
       "options": [
         "parameters",
