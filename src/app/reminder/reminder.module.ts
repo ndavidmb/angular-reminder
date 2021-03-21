@@ -7,6 +7,7 @@ import { monthReducer } from './redux/reducers/month.reducer';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
+import {HttpClientModule} from '@angular/common/http';
 
 @NgModule({
   declarations: [ReminderListComponent, ReminderFormComponent],
@@ -16,6 +17,7 @@ import { MatDividerModule } from '@angular/material/divider';
     ReactiveFormsModule,
     MatDividerModule,
     MatDialogModule,
+    HttpClientModule,
     StoreModule.forRoot({ month: monthReducer }),
   ],
   entryComponents: [ReminderFormComponent],

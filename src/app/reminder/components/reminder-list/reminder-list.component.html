@@ -1,6 +1,4 @@
-<nav
-  class="navbar navbar-expand-lg navbar-dark bg-dark"
->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
   <div class="container-fluid">
     <a class="navbar-brand" href="#">Month</a>
     <button
@@ -23,6 +21,18 @@
           style="width: 250px"
         >
           <option *ngFor="let item of monthsName" value="{{item.value}}">
+            {{item.name}}
+          </option>
+        </select>
+      </li>
+      <li class="d-flex mx-2">
+        <select
+          [(ngModel)]="idCity"
+          (ngModelChange)="loadWeather()"
+          class="form-select"
+          style="width: 250px"
+        >
+          <option *ngFor="let item of cityPicker" value="{{item.id}}">
             {{item.name}}
           </option>
         </select>
@@ -52,15 +62,70 @@
         <td
           *ngFor="let day of week.days"
           class="border"
-          style="height: 12vh; width: 8vw"
-          [ngClass]="(day.idDay === 0) ? 'bg-light' : ''"
+          style="height: 14vh; width: 8vw"
+          [ngClass]="(day.idDay === 0 || day.disable) ? 'bg-light' : ''"
         >
           <ng-container *ngIf="day.idDay !== 0">
             <div class="w-100 row m-0">
-              <div class="col-10 p-0">{{day.idDay}}</div>
-              <div class="col-2 p-0">
-                <i class="bi bi-calendar-plus mx-2 text-primary" (click)="openForm(true, day)" title="New description" style="cursor: pointer;"></i>
+              <div
+                class="col-8 p-0"
+                [ngClass]="(day.disable) ? 'text-muted': ''"
+              >
+                {{day.idDay}}
+                <small class="text-secondary" style="font-size: 15px">
+                  {{day.weather}}
+                </small>
               </div>
+              <div class="col-4 p-0 row m-0 p-0" *ngIf="!day.disable">
+                <div
+                  class="col-4 p-0 m-0"
+                  *ngIf="day.reminders.length > 0"
+                >
+                  <i
+                    class="bi bi-trash mr-2 text-danger col p-0"
+                    (click)="deleteAll(day)"
+                    title="Delete reminder"
+                    style="cursor: pointer; text-align: end"
+                  ></i>
+                </div>
+                <div
+                  class="col-4 p-0 m-0 bg-warning"
+                  style="
+                    border-radius: 50%;
+                    font-size: 10px;
+                    text-align: center;
+                  "
+                  *ngIf="day.reminders.length > 0"
+                >
+                  {{day.reminders.length}}
+                </div>
+                <i
+                  class="bi bi-calendar-plus mr-2 text-primary col p-0"
+                  (click)="openForm(true, day)"
+                  title="New reminder"
+                  style="cursor: pointer; text-align: end"
+                ></i>
+              </div>
+            </div>
+            <div style="height: 80%; overflow-y: auto">
+              <ng-container *ngFor="let reminder of day.reminders">
+                <div
+                  class="card mt-1 mx-0 mb-0"
+                  (click)="update(day, reminder)"
+                  style="
+                    background-color: {{reminder.color}} !important;
+                    max-width: 100%;
+                    word-break: break-word;
+                    cursor: pointer;
+                  "
+                >
+                  <div class="card-header w-100">
+                    <i class="bi bi-alarm"></i>
+                    {{ reminder.hour | date: 'shortTime' }}
+                  </div>
+                  <div class="card-body">{{reminder.reminder}}</div>
+                </div>
+              </ng-container>
             </div>
           </ng-container>
         </td>

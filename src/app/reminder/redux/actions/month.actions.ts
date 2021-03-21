@@ -5,3 +5,8 @@ export const changeMonth = createAction(
   'Change month',
   props<{ idMonth: number, weeks: Week[] }>()
 );
+
+export const changeWeeks = createAction(
+  'Change week',
+  props<{ weeks: Week[] }>()
+)

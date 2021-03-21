@@ -3,8 +3,8 @@ import { Week } from '../../models/week';
 import * as actions from '../actions/month.actions';
 
 export interface MonthState {
-  idMonth: number;
-  weeks: Week[];
+  idMonth: Readonly<number>;
+  weeks: ReadonlyArray<Week>;
 }
 
 export const initialState: MonthState = {
@@ -14,12 +14,16 @@ export const initialState: MonthState = {
 
 const _monthReducer = createReducer(
   initialState,
-  on(actions.changeMonth, (state, { idMonth, weeks }) => ({
+  on(actions.changeMonth, (_state, { idMonth, weeks }) => ({
     idMonth: idMonth,
+    weeks: weeks,
+  })),
+  on(actions.changeWeeks, (state, {weeks}) => ({
+    idMonth: state.idMonth,
     weeks: weeks,
   }))
 );
 
-export function monthReducer(state: any, action: any) {
+export function monthReducer(state: MonthState = initialState, action: any) {
   return _monthReducer(state, action);
 }
