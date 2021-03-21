@@ -1,14 +1,14 @@
 <div class="row w-100 m-0">
   <h2 mat-dialog-title class="col pl-0">
-    {{ createMode ? 'Create reminder' : 'Edit reminder' }}
+    {{ data.createMode ? 'Create reminder' : 'Edit reminder' }}
     <small class="text-muted">{{date | date:'longDate'}}</small>
   </h2>
   <h2
     class="col-2 pr-0 bg-warning boder"
-    *ngIf="day.weather"
+    *ngIf="data.day.weather"
     style="border-radius: 50%; text-align: center"
   >
-    {{day.weather}}
+    {{data.day.weather}}
   </h2>
 </div>
 
@@ -89,7 +89,7 @@
   <button
     class="btn btn-danger mx-1"
     (click)="delete()"
-    *ngIf="!createMode"
+    *ngIf="!data.createMode"
     mat-button
     mat-dialog-close
   >

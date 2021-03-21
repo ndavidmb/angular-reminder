@@ -1,6 +1,11 @@
 export class Reminder {
-  id: number = 0;
-  reminder: string = '';
-  hour: Date = new Date();
-  color: string = '';
+  constructor(
+    public idMonth: number,
+    public idWeek: number,
+    public idDay: number,
+    public id: number,
+    public message: string,
+    public hour: Date,
+    public color: string,
+  ) {}
 }

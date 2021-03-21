@@ -14,9 +14,9 @@ export const initialState: MonthState = {
 
 const _monthReducer = createReducer(
   initialState,
-  on(actions.changeMonth, (_state, { idMonth, weeks }) => ({
+  on(actions.changeMonth, (state, { idMonth }) => ({
     idMonth: idMonth,
-    weeks: weeks,
+    weeks: state.weeks,
   })),
   on(actions.changeWeeks, (state, {weeks}) => ({
     idMonth: state.idMonth,

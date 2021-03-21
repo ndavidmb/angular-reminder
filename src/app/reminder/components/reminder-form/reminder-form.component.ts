@@ -1,14 +1,16 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { MatDialogRef } from '@angular/material/dialog';
-import { Store } from '@ngrx/store';
-import { Observable } from 'rxjs';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Day } from '../../models/day';
 import { Reminder } from '../../models/reminder';
-import { Week } from '../../models/week';
-import { MonthState } from '../../redux/reducers/month.reducer';
 import { ReminderService } from '../../services/reminder.service';
-import * as actions from '../../redux/actions/month.actions';
+import { absoluteDate } from 'src/app/static';
+
+interface Data {
+  createMode: boolean;
+  day: Day;
+  reminder: Reminder;
+}
 
 @Component({
   selector: 'app-reminder-form',
@@ -17,21 +19,17 @@ import * as actions from '../../redux/actions/month.actions';
 })
 export class ReminderFormComponent implements OnInit {
   formGroup: FormGroup;
-  reminder: any;
-  day: Day = new Day();
-  createMode: boolean = false;
-  date: Date = new Date();
   hours: number[] = [];
-  weeks$: Observable<ReadonlyArray<Week>> = new Observable();
-  weeks: Week[] = [];
+  date: Date;
 
   constructor(
+    @Inject(MAT_DIALOG_DATA) public data: Data,
     public dialogRef: MatDialogRef<ReminderFormComponent>,
-    private store: Store<{ month: MonthState }>,
     public fb: FormBuilder,
     public service: ReminderService
   ) {
     this.formGroup = this.buildForm();
+    this.date = new Date(2021, this.data.day.idMonth, this.data.day.idDay);
   }
 
   ngOnInit(): void {
@@ -39,55 +37,20 @@ export class ReminderFormComponent implements OnInit {
       this.hours.push(i);
     }
     this.initialForm();
-    this.mapWeeks();
-  }
-
-  mapWeeks() {
-    this.weeks$.subscribe((weeks) => {
-      this.weeks = [];
-      weeks.forEach((w) => {
-        const week = new Week();
-        week.idWeek = w.idWeek;
-        week.days = [];
-        w.days.forEach((d) => {
-          const day = new Day();
-          day.idWeek = w.idWeek;
-          day.idDay = d.idDay;
-          day.reminders = [];
-          d.reminders.forEach((r) => {
-            const reminder = new Reminder();
-            reminder.reminder = r.reminder;
-            reminder.hour = r.hour;
-            reminder.color = r.color;
-            reminder.id = r.id;
-            day.reminders.push(reminder);
-          });
-          day.disable = d.disable;
-          day.weather = d.weather;
-          week.days.push(day);
-        });
-        this.weeks.push(week);
-      });
-    });
   }
 
   initialForm() {
-    var hour = this.reminder?.hour.getHours();
+    const { message, hour, color } = this.data.reminder;
+    var h = hour?.getHours();
     var period = 0;
-    if (hour > 12) {
-      hour -= 12;
+    if (h > 12) {
+      h -= 12;
       period = 12;
     }
-    this.formGroup.controls.message.setValue(
-      this.reminder !== null ? this.reminder.reminder : ''
-    );
-    this.formGroup.controls.hour.setValue(this.reminder === null ? 1 : hour);
-    this.formGroup.controls.period.setValue(
-      this.reminder === null ? 0 : period
-    );
-    this.formGroup.controls.color.setValue(
-      this.reminder === null ? '#00ccff' : this.reminder.color
-    );
+    this.formGroup.controls.message.setValue(message);
+    this.formGroup.controls.hour.setValue(h);
+    this.formGroup.controls.period.setValue(period);
+    this.formGroup.controls.color.setValue(color);
   }
 
   buildForm() {
@@ -99,68 +62,48 @@ export class ReminderFormComponent implements OnInit {
     }));
   }
   save() {
-    const reminder = new Reminder();
-    reminder.color = this.formGroup.controls.color.value;
-    reminder.reminder = this.formGroup.controls.message.value;
     let hour = +this.formGroup.controls.hour.value;
     const period = +this.formGroup.controls.period.value;
+    //let cloneReminders = [ ...this.data.day.reminders ];
+    let last = this.data.day.reminders[this.data.day.reminders.length - 1];
     hour += period;
-    const date = new Date(
-      this.date.getFullYear(),
-      this.date.getMonth(),
-      this.date.getDate(),
-      hour,
-      0,
-      0
+    const date = absoluteDate();
+    date.setHours(hour);
+    const reminder = new Reminder(
+      this.data.day.idMonth,
+      this.data.day.idWeek,
+      this.data.day.idDay,
+      last ? last.id + 1 : 1,
+      this.formGroup.controls.message.value,
+      date,
+      this.formGroup.controls.color.value
     );
-    reminder.hour = date;
-    this.saveOrUpdate(reminder);
-    this.dialogClose();
+    this.data.createMode ? this.create(reminder) : this.update(reminder);
+
+    this.data.day.reminders.sort((a, b) => a.hour.getTime() - b.hour.getTime());
+
+    this.dialogRef.close();
   }
 
-  getDayInWeeks() {
-    return this.weeks
-      .find((w) => w.idWeek == this.day.idWeek)
-      ?.days.find((d: any) => d.idDay == this.day.idDay);
+  create(reminder: Reminder) {
+    this.data.day.reminders.push(reminder);
   }
-
-  saveOrUpdate(reminder: Reminder) {
-    const day = this.getDayInWeeks();
-    // SAVE
-    if (this.createMode && day) {
-      var lastReminder = day.reminders[day.reminders.length - 1];
-      if (lastReminder) {
-        reminder.id = lastReminder.id + 1;
-      } else {
-        reminder.id = 1;
-      }
-      day.reminders.push(reminder);
-      day.reminders.sort((a, b) => a.hour.getTime() - b.hour.getTime());
-      // UPDATE
-    } else if (day) {
-      var r = day?.reminders.findIndex((f) => f.id == this.reminder.id);
-      day.reminders[r] = reminder;
-      day.reminders[r].id = this.reminder.id;
-      day.reminders.sort((a, b) => a.hour.getTime() - b.hour.getTime());
-    }
+  update(reminder: Reminder) {
+    const r = this.data.day.reminders.findIndex(
+      (f) => f.id === this.data.reminder.id
+    );
+    reminder.id = this.data.reminder.id;
+    this.data.day.reminders[r] = reminder;
   }
 
   delete() {
-    const day = this.getDayInWeeks();
+    const day = this.data.day;
     if (day) {
-      const index = day.reminders.findIndex((f) => f.id === this.reminder.id);
-      console.log('index ', index);
+      const index = day.reminders.findIndex(
+        (f) => f.id === this.data.reminder.id
+      );
       day.reminders.splice(index, 1);
     }
-    this.dialogClose();
-  }
-
-  changeMonth(weeks: Week[]) {
-    this.store.dispatch(actions.changeWeeks({ weeks: weeks }));
-  }
-
-  dialogClose() {
-    this.changeMonth(this.weeks);
     this.dialogRef.close();
   }
 }

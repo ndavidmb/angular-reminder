@@ -3,7 +3,7 @@ import {Week} from '../../models/week';
 
 export const changeMonth = createAction(
   'Change month',
-  props<{ idMonth: number, weeks: Week[] }>()
+  props<{ idMonth: number }>()
 );
 
 export const changeWeeks = createAction(

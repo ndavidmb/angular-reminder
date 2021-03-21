@@ -1,47 +1,5 @@
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-  <div class="container-fluid">
-    <a class="navbar-brand" href="#">Month</a>
-    <button
-      class="navbar-toggler"
-      type="button"
-      data-bs-toggle="collapse"
-      data-bs-target="#navbarSupportedContent"
-      aria-controls="navbarSupportedContent"
-      aria-expanded="false"
-      aria-label="Toggle navigation"
-    >
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarSupportedContent">
-      <li class="d-flex">
-        <select
-          [(ngModel)]="value"
-          (ngModelChange)="changeMonth($event)"
-          class="form-select"
-          style="width: 250px"
-        >
-          <option *ngFor="let item of monthsName" value="{{item.value}}">
-            {{item.name}}
-          </option>
-        </select>
-      </li>
-      <li class="d-flex mx-2">
-        <select
-          [(ngModel)]="idCity"
-          (ngModelChange)="loadWeather()"
-          class="form-select"
-          style="width: 250px"
-        >
-          <option *ngFor="let item of cityPicker" value="{{item.id}}">
-            {{item.name}}
-          </option>
-        </select>
-      </li>
-    </div>
-  </div>
-</nav>
 <div class="w-100 h1 mx-3">
-  {{monthsName[value].name}}
+  {{monthsName[month].name}}
   <small class="text-muted">2021</small>
 </div>
 <div class="card m-3 p-2">
@@ -58,7 +16,7 @@
       </tr>
     </thead>
     <tbody>
-      <tr *ngFor="let week of weeks$ | async ">
+      <tr *ngFor="let week of weeks">
         <td
           *ngFor="let day of week.days"
           class="border"
@@ -77,10 +35,7 @@
                 </small>
               </div>
               <div class="col-4 p-0 row m-0 p-0" *ngIf="!day.disable">
-                <div
-                  class="col-4 p-0 m-0"
-                  *ngIf="day.reminders.length > 0"
-                >
+                <div class="col-4 p-0 m-0" *ngIf="day.reminders.length > 0">
                   <i
                     class="bi bi-trash mr-2 text-danger col p-0"
                     (click)="deleteAll(day)"
@@ -111,9 +66,9 @@
               <ng-container *ngFor="let reminder of day.reminders">
                 <div
                   class="card mt-1 mx-0 mb-0"
-                  (click)="update(day, reminder)"
+                  (click)="openForm(false, day, reminder)"
+                  [ngStyle]="{'background-color':reminder.color}"
                   style="
-                    background-color: {{reminder.color}} !important;
                     max-width: 100%;
                     word-break: break-word;
                     cursor: pointer;
@@ -123,7 +78,7 @@
                     <i class="bi bi-alarm"></i>
                     {{ reminder.hour | date: 'shortTime' }}
                   </div>
-                  <div class="card-body">{{reminder.reminder}}</div>
+                  <div class="card-body">{{reminder.message}}</div>
                 </div>
               </ng-container>
             </div>
