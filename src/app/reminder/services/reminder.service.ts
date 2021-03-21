@@ -14,7 +14,7 @@ export class ReminderService {
     const url = `${this.apiUrl}`;
     let params = new HttpParams()
       .set('id', idCity)
-      .set('appid', '1b220f847cdc8081227074f5561b4498');
+      .set('appid', 'API_KEY');
 
     return this.http.get(url, {params: params}).pipe(
       map(
